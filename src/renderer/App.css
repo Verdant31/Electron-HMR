@@ -1,0 +1,24 @@
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  height: 100%;
+  width: 100%;
+
+  background-color: #27272a;
+
+  padding-top: 2rem;
+}
+h3 {
+  color: #f3f4f6;
+  font-weight: 400;
+  font-size: 1.4rem;
+  padding-top: 2rem;
+}
+
+h1 {
+  color: #37BAF5;
+}
