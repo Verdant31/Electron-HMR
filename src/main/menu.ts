@@ -1,4 +1,5 @@
 import { Menu, BrowserWindow } from 'electron';
+import { resolveHtmlPath } from './util';
 
 export default class MenuBuilder {
   mainWindow: BrowserWindow;
@@ -52,6 +53,18 @@ export default class MenuBuilder {
             accelerator: 'Ctrl+W',
             click: () => {
               this.mainWindow.close();
+            },
+          },
+        ],
+      },
+      {
+        label: '&Go',
+        submenu: [
+          {
+            label: '&Back',
+            accelerator: 'Ctrl+W',
+            click: () => {
+              this.mainWindow.loadURL(resolveHtmlPath('index.html'));
             },
           },
         ],

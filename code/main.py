@@ -75,11 +75,6 @@ while True:
         x_normalized = pd.DataFrame(formattedLm).transpose()
         x_normalized = normalizer.transform(x_normalized)
         predict = modelo.predict(x_normalized, verbose=0)
-        cv2.putText(img, alfabeto[int(np.argmax(predict))],
-                    (10, 70), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
-        cv2.putText(img, 'Acc: ' + str(predict[0][np.argmax(predict)]),
-                    (130, 70), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
-
         if (predict[0][np.argmax(predict)] > 0.98 and int(np.argmax(predict)) < 2):
             rightMovesCounter += 1
             if (rightMovesCounter > 30):
@@ -122,8 +117,7 @@ while True:
         elif (leftInterval > topInterval and leftInterval > bottomInterval and leftInterval > rightInterval):
             direction = "esquerda"
 
-        print("O simbolo do movimento foi: " +
-              moveSymbol + " para " + direction)
+        print(moveSymbol + " " + direction)
         rightMovesCounter = 0
         moveStarted = False
         moveFinished = False

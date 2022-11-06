@@ -13,10 +13,13 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import fs from 'fs';
 import childProcess from 'child_process';
+import Store from 'electron-store';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { openNewBrowserTab } from './scripts';
+
+const store = new Store();
 
 class AppUpdater {
   constructor() {
@@ -27,12 +30,6 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -75,9 +72,10 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     show: false,
     width: 1024,
-    height: 728,
+    height: 840,
     icon: getAssetPath('icon.png'),
     webPreferences: {
+      nodeIntegration: true,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
@@ -115,22 +113,85 @@ const createWindow = async () => {
   new AppUpdater();
 };
 
-/**
- * Add event listeners...
- */
-
 app.on('window-all-closed', () => {
-  // Respect the OSX convention of having the application in memory even
-  // after all windows have been closed
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-app
-  .whenReady()
-  .then(() => {
-    createWindow();
+ipcMain.on('set-user-settings', (event, arg) => {
+  store.set('userSettings', arg);
+});
+
+// Mudar isso aqui, é apenas para abrir a camera e nao abrir o HMR
+ipcMain.on('open-camera', async () => {
+  const process = {
+    terminal: childProcess.spawn('/bin/sh'),
+    handler: console.log,
+    send: (data: any) => {
+      process.terminal.stdin.write(`${data}\n`);
+    },
+  };
+  // Handle Data
+  process.terminal.stdout.on('data', (buffer) => {
+    process.handler({ type: 'data', data: buffer });
+  });
+  process.handler = (output) => {
+    let data = '';
+    if (output.data) data += `: ${output.data.toString()}`;
+    console.log(output.type + data);
+    process.send(
+      '/bin/python3 /home/verdant/Desktop/Github/Electron-HMR/code/main.py'
+    );
+  };
+  process.send(
+    '/bin/python3 /home/verdant/Desktop/Github/Electron-HMR/code/main.py'
+  );
+
+  app.on('activate', () => {
+    // On macOS it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (mainWindow === null) createWindow();
+  });
+});
+function executeTask(data: string) {
+  const [symbol, dir] = data.split(' ');
+  switch (symbol) {
+    case 'A':
+      switch (dir.replace(/(\r\n|\n|\r)/gm, '')) {
+        case 'esquerda':
+          openNewBrowserTab();
+          break;
+        case 'direita':
+          console.log('A direita');
+          break;
+        case 'cima':
+          console.log('A cima');
+          break;
+        case 'baixo':
+          console.log('A baixo');
+          break;
+        default:
+          console.log('Default do A');
+          break;
+      }
+      break;
+    default: {
+      console.log('Default do B');
+    }
+  }
+}
+
+ipcMain.on('start-program', () => {
+  // const settings = store.get('userSettings');
+  const settings = [
+    { symbol: '1 Up', option: 'Open a new tab in your browser' },
+    { symbol: '1 Down', option: 'Increase the PC sound' },
+    { symbol: '1 Left', option: 'Decrease the PC sound' },
+    { symbol: '1 Right', option: 'Open Visual Studio Code' },
+  ];
+  mainWindow?.hide();
+  if (settings) {
     const process = {
       terminal: childProcess.spawn('/bin/sh'),
       handler: console.log,
@@ -138,14 +199,11 @@ app
         process.terminal.stdin.write(`${data}\n`);
       },
     };
-    // Handle Data
     process.terminal.stdout.on('data', (buffer) => {
       process.handler({ type: 'data', data: buffer });
     });
     process.handler = (output) => {
-      let data = '';
-      if (output.data) data += `: ${output.data.toString()}`;
-      console.log(output.type + data);
+      executeTask(output.data.toString());
       process.send(
         '/bin/python3 /home/verdant/Desktop/Github/Electron-HMR/code/main.py'
       );
@@ -153,11 +211,12 @@ app
     process.send(
       '/bin/python3 /home/verdant/Desktop/Github/Electron-HMR/code/main.py'
     );
+  }
+});
 
-    app.on('activate', () => {
-      // On macOS it's common to re-create a window in the app when the
-      // dock icon is clicked and there are no other windows open.
-      if (mainWindow === null) createWindow();
-    });
+app
+  .whenReady()
+  .then(() => {
+    createWindow();
   })
   .catch(console.log);

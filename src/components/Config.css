@@ -1,0 +1,47 @@
+
+h1, h2, h3, h4, h5 {
+  color: #37BAF5;
+}
+
+.option {
+  flex-direction: row !important;
+}
+
+.option h3{
+  padding: 0;
+  margin-right: 2rem;
+  width: 18rem;
+  font-weight: bold;
+  text-align: left;
+}
+
+.selectContainer {
+  color: #fff;
+  font-weight: 400;
+  font-family: 'Roboto-Regular';
+  height: 2rem;
+  font-size: 1rem;
+  width: 18rem;
+  padding-left: 0.3rem;
+}
+
+.optionsContainer {
+  margin-bottom: 2rem;
+}
+
+.submitBtn {
+  margin-bottom: 2rem;
+  width: 12rem;
+  height: 3rem;
+  text-decoration: none;
+  border: 0;
+  background: #37BAF5;
+  color: #fff;
+  border-radius: 4px;
+}
+
+.submitBtn p {
+  background-color: #37BAF5;
+  font-weight: bold;
+}
+

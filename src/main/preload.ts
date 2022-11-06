@@ -1,11 +1,14 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'ipc-example';
-
+export type Channels = 'open-camera' | 'set-user-settings' | 'start-program';
 contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {
-    sendMessage(channel: Channels, args: unknown[]) {
-      ipcRenderer.send(channel, args);
+    sendMessage(channel: Channels, args?: unknown[]) {
+      if (args) {
+        ipcRenderer.send(channel, args);
+      } else {
+        ipcRenderer.send(channel);
+      }
     },
     on(channel: Channels, func: (...args: unknown[]) => void) {
       const subscription = (_event: IpcRendererEvent, ...args: unknown[]) =>
