@@ -8,10 +8,13 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
+
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import fs from 'fs';
+import childProcess from 'child_process';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
@@ -128,6 +131,29 @@ app
   .whenReady()
   .then(() => {
     createWindow();
+    const process = {
+      terminal: childProcess.spawn('/bin/sh'),
+      handler: console.log,
+      send: (data: any) => {
+        process.terminal.stdin.write(`${data}\n`);
+      },
+    };
+    // Handle Data
+    process.terminal.stdout.on('data', (buffer) => {
+      process.handler({ type: 'data', data: buffer });
+    });
+    process.handler = (output) => {
+      let data = '';
+      if (output.data) data += `: ${output.data.toString()}`;
+      console.log(output.type + data);
+      process.send(
+        '/bin/python3 /home/verdant/Desktop/Github/Electron-HMR/code/main.py'
+      );
+    };
+    process.send(
+      '/bin/python3 /home/verdant/Desktop/Github/Electron-HMR/code/main.py'
+    );
+
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
