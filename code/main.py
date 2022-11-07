@@ -15,10 +15,13 @@ warnings.warn = warn
 
 alfabeto = ['A', 'B', 'None']
 
-modelo = keras.models.load_model(
-    '/home/verdant/Desktop/Github/Electron-HMR/code/model.h5')
-normalizer = load(
-    open('/home/verdant/Desktop/Github/Electron-HMR/code/normalizerModel.pkl', 'rb'))
+modelo = keras.models.load_model("C:/Users/Administrador/Desktop/ProjectHMR/Electron-HMR/code/modelw.h5")
+normalizer = load(open('C:/Users/Administrador/Desktop/ProjectHMR/Electron-HMR/code/normalizerModel.pkl', 'rb'))
+
+#modelo = keras.models.load_model('/home/verdant/Desktop/Github/Electron-HMR/code/model.h5')
+#normalizer = load(open('/home/verdant/Desktop/Github/Electron-HMR/code/normalizerModel.pkl', 'rb'))
+
+
 detector = htm.handDetector()
 cap = cv2.VideoCapture(0)
 
@@ -116,7 +119,6 @@ while True:
             direction = "direita"
         elif (leftInterval > topInterval and leftInterval > bottomInterval and leftInterval > rightInterval):
             direction = "esquerda"
-
         print(moveSymbol + " " + direction)
         rightMovesCounter = 0
         moveStarted = False

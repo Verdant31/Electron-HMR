@@ -16,8 +16,8 @@ import log from 'electron-log';
 import childProcess from 'child_process';
 import Store from 'electron-store';
 import MenuBuilder from './menu';
-import { resolveHtmlPath } from './util';
-import { openNewBrowserTab } from './scripts';
+import { resolveHtmlPath, runScript, terminal } from './util';
+import { increaseVolume, openNewBrowserTab } from './scripts';
 
 const store = new Store();
 
@@ -125,28 +125,23 @@ ipcMain.on('set-user-settings', (event, arg) => {
 
 // Mudar isso aqui, é apenas para abrir a camera e nao abrir o HMR
 ipcMain.on('open-camera', async () => {
-  const process = {
-    terminal: childProcess.spawn('/bin/sh'),
+  const inter = {
+    terminal: childProcess.spawn(terminal),
     handler: console.log,
     send: (data: any) => {
-      process.terminal.stdin.write(`${data}\n`);
+      inter.terminal.stdin.write(`${data}\n`);
     },
   };
   // Handle Data
-  process.terminal.stdout.on('data', (buffer) => {
-    process.handler({ type: 'data', data: buffer });
+  inter.terminal.stdout.on('data', (buffer) => {
+    inter.handler({ type: 'data', data: buffer });
   });
-  process.handler = (output) => {
+  inter.handler = (output) => {
     let data = '';
     if (output.data) data += `: ${output.data.toString()}`;
-    console.log(output.type + data);
-    process.send(
-      '/bin/python3 /home/verdant/Desktop/Github/Electron-HMR/code/main.py'
-    );
+    inter.send(runScript);
   };
-  process.send(
-    '/bin/python3 /home/verdant/Desktop/Github/Electron-HMR/code/main.py'
-  );
+  inter.send(runScript);
 
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
@@ -154,6 +149,7 @@ ipcMain.on('open-camera', async () => {
     if (mainWindow === null) createWindow();
   });
 });
+
 function executeTask(data: string) {
   const [symbol, dir] = data.split(' ');
   switch (symbol) {
@@ -163,21 +159,18 @@ function executeTask(data: string) {
           openNewBrowserTab();
           break;
         case 'direita':
-          console.log('A direita');
           break;
         case 'cima':
-          console.log('A cima');
+          increaseVolume();
           break;
         case 'baixo':
-          console.log('A baixo');
           break;
         default:
-          console.log('Default do A');
           break;
       }
       break;
     default: {
-      console.log('Default do B');
+      break;
     }
   }
 }
@@ -192,25 +185,21 @@ ipcMain.on('start-program', () => {
   ];
   mainWindow?.hide();
   if (settings) {
-    const process = {
-      terminal: childProcess.spawn('/bin/sh'),
+    const inter = {
+      terminal: childProcess.spawn(terminal),
       handler: console.log,
       send: (data: any) => {
-        process.terminal.stdin.write(`${data}\n`);
+        inter.terminal.stdin.write(`${data}\n`);
       },
     };
-    process.terminal.stdout.on('data', (buffer) => {
-      process.handler({ type: 'data', data: buffer });
+    inter.terminal.stdout.on('data', (buffer) => {
+      inter.handler({ type: 'data', data: buffer });
     });
-    process.handler = (output) => {
+    inter.handler = (output) => {
       executeTask(output.data.toString());
-      process.send(
-        '/bin/python3 /home/verdant/Desktop/Github/Electron-HMR/code/main.py'
-      );
+      inter.send(runScript);
     };
-    process.send(
-      '/bin/python3 /home/verdant/Desktop/Github/Electron-HMR/code/main.py'
-    );
+    inter.send(runScript);
   }
 });
 
