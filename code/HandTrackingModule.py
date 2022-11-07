@@ -1,4 +1,3 @@
-from turtle import left
 import cv2
 import mediapipe as mp
 from PIL import ImageEnhance
