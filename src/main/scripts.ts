@@ -36,21 +36,11 @@ export function openCode() {
 }
 
 export function openNewBrowserTab() {
-  const inter = {
-    terminal: childProcess.spawn(terminal),
-    handler: console.log,
-    send: (data: any) => {
-      inter.terminal.stdin.write(`${data}`);
-    },
-  };
-
-  inter.terminal.stdout.on('data', (buffer) => {
-    inter.handler({ type: 'data', data: buffer });
-  });
-
   if (process.platform === 'win32') {
-    inter.send('start chrome "https://www.google.com/"');
+    childProcess.spawn(terminal, ['start chrome "https://www.google.com/"']);
   } else {
-    inter.send('google-chrome --app-url https://www.google.com/');
+    childProcess.spawn(terminal, [
+      'google-chrome --app-url https://www.google.com/',
+    ]);
   }
 }

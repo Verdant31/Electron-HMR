@@ -112,7 +112,6 @@ const createWindow = async () => {
   // eslint-disable-next-line
   new AppUpdater();
 };
-
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -129,6 +128,10 @@ ipcMain.on('select-dir', async () => {
   });
   const formattedPath = result.filePaths[0].replace(/\\/g, '/');
   store.set('vscode-project-path', formattedPath);
+  (mainWindow as BrowserWindow).webContents.send(
+    'get-path',
+    store.get('vscode-project-path')
+  );
   console.log(formattedPath);
 });
 
@@ -154,22 +157,89 @@ ipcMain.on('open-camera', async () => {
   });
 });
 
-function executeTask(data: string) {
+function executeTask(data: string, settings: any) {
   const [symbol, dir] = data.split(' ');
+  const command = `${symbol} ${dir.replace(/(\r\n|\n|\r)/gm, '')}`;
+  let userOption = '';
+  settings.forEach((setting: any) => {
+    if (setting.symbol === command) {
+      userOption = setting.option;
+    }
+  });
   switch (symbol) {
     case 'A':
       switch (dir.replace(/(\r\n|\n|\r)/gm, '')) {
         case 'esquerda':
-          openNewBrowserTab();
+          switch (userOption) {
+            case 'Open a new tab in your browser':
+              openNewBrowserTab();
+              break;
+            case 'Increase the PC sound':
+              toggleVolume(true);
+              break;
+            case 'Decrease the PC sound':
+              toggleVolume(false);
+              break;
+            case 'Open Visual Studio Code':
+              openCode();
+              break;
+            default:
+              break;
+          }
           break;
         case 'direita':
-          openCode();
+          switch (userOption) {
+            case 'Open a new tab in your browser':
+              openNewBrowserTab();
+              break;
+            case 'Increase the PC sound':
+              toggleVolume(true);
+              break;
+            case 'Decrease the PC sound':
+              toggleVolume(false);
+              break;
+            case 'Open Visual Studio Code':
+              openCode();
+              break;
+            default:
+              break;
+          }
           break;
         case 'cima':
-          toggleVolume(true);
+          switch (userOption) {
+            case 'Open a new tab in your browser':
+              openNewBrowserTab();
+              break;
+            case 'Increase the PC sound':
+              toggleVolume(true);
+              break;
+            case 'Decrease the PC sound':
+              toggleVolume(false);
+              break;
+            case 'Open Visual Studio Code':
+              openCode();
+              break;
+            default:
+              break;
+          }
           break;
         case 'baixo':
-          toggleVolume(false);
+          switch (userOption) {
+            case 'Open a new tab in your browser':
+              openNewBrowserTab();
+              break;
+            case 'Increase the PC sound':
+              toggleVolume(true);
+              break;
+            case 'Decrease the PC sound':
+              toggleVolume(false);
+              break;
+            case 'Open Visual Studio Code':
+              openCode();
+              break;
+            default:
+              break;
+          }
           break;
         default:
           break;
@@ -182,13 +252,8 @@ function executeTask(data: string) {
 }
 
 ipcMain.on('start-program', () => {
-  // const settings = store.get('userSettings');
-  const settings = [
-    { symbol: '1 Up', option: 'Open a new tab in your browser' },
-    { symbol: '1 Down', option: 'Increase the PC sound' },
-    { symbol: '1 Left', option: 'Decrease the PC sound' },
-    { symbol: '1 Right', option: 'Open Visual Studio Code' },
-  ];
+  const settings = store.get('userSettings');
+
   mainWindow?.hide();
   if (settings) {
     const inter = {
@@ -202,7 +267,7 @@ ipcMain.on('start-program', () => {
       inter.handler({ type: 'data', data: buffer });
     });
     inter.handler = (output) => {
-      executeTask(output.data.toString());
+      executeTask(output.data.toString(), settings);
       inter.send(runScript);
     };
     inter.send(runScript);

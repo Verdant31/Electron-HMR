@@ -4,7 +4,8 @@ export type Channels =
   | 'open-camera'
   | 'set-user-settings'
   | 'select-dir'
-  | 'start-program';
+  | 'start-program'
+  | 'get-path';
 
 contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {

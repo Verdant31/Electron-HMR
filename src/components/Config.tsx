@@ -14,6 +14,7 @@ type SelectedOptions = {
 };
 
 const Config = () => {
+  const [selectedPath, setSelectedPath] = useState('');
   const [selectedOptions, setSelectedOptions] = useState<SelectedOptions[]>([]);
   const handleSelectDir = async () => {
     window.electron.ipcRenderer.sendMessage('select-dir');
@@ -24,6 +25,11 @@ const Config = () => {
       selectedOptions
     );
   };
+  window.electron.ipcRenderer.on('get-path', (store) => {
+    const splitedPath = (store as string).split('/');
+    setSelectedPath(splitedPath[splitedPath.length - 1]);
+  });
+
   return (
     <div>
       <div className="optionsContainer">
@@ -34,7 +40,7 @@ const Config = () => {
             onChange={(e) =>
               setSelectedOptions([
                 ...selectedOptions,
-                { symbol: '1 Up', option: e.target.value },
+                { symbol: 'A cima', option: e.target.value },
               ])
             }
             className="selectContainer"
@@ -58,7 +64,7 @@ const Config = () => {
             onChange={(e) =>
               setSelectedOptions([
                 ...selectedOptions,
-                { symbol: '1 Down', option: e.target.value },
+                { symbol: 'A baixo', option: e.target.value },
               ])
             }
           >
@@ -80,7 +86,7 @@ const Config = () => {
             onChange={(e) =>
               setSelectedOptions([
                 ...selectedOptions,
-                { symbol: '1 Left', option: e.target.value },
+                { symbol: 'A esquerda', option: e.target.value },
               ])
             }
           >
@@ -102,7 +108,7 @@ const Config = () => {
             onChange={(e) =>
               setSelectedOptions([
                 ...selectedOptions,
-                { symbol: '1 Right', option: e.target.value },
+                { symbol: 'A direita', option: e.target.value },
               ])
             }
           >
@@ -122,6 +128,11 @@ const Config = () => {
         <p className="clickMe">
           Click here to define which folder you want to VSCode open
         </p>
+        {selectedPath && selectedPath.length > 0 && (
+          <p style={{ fontWeight: '400', textDecoration: 'none' }}>
+            Selected folder: <span>{selectedPath}</span>
+          </p>
+        )}
       </button>
       <button
         className="submitBtn"
