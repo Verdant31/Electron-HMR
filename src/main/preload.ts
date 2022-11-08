@@ -1,6 +1,11 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'open-camera' | 'set-user-settings' | 'start-program';
+export type Channels =
+  | 'open-camera'
+  | 'set-user-settings'
+  | 'select-dir'
+  | 'start-program';
+
 contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {
     sendMessage(channel: Channels, args?: unknown[]) {

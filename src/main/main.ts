@@ -10,14 +10,14 @@
  */
 
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import childProcess from 'child_process';
 import Store from 'electron-store';
 import MenuBuilder from './menu';
 import { resolveHtmlPath, runScript, terminal } from './util';
-import { increaseVolume, openNewBrowserTab } from './scripts';
+import { openCode, openNewBrowserTab, toggleVolume } from './scripts';
 
 const store = new Store();
 
@@ -123,7 +123,15 @@ ipcMain.on('set-user-settings', (event, arg) => {
   store.set('userSettings', arg);
 });
 
-// Mudar isso aqui, é apenas para abrir a camera e nao abrir o HMR
+ipcMain.on('select-dir', async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openDirectory'],
+  });
+  const formattedPath = result.filePaths[0].replace(/\\/g, '/');
+  store.set('vscode-project-path', formattedPath);
+  console.log(formattedPath);
+});
+
 ipcMain.on('open-camera', async () => {
   const inter = {
     terminal: childProcess.spawn(terminal),
@@ -136,16 +144,12 @@ ipcMain.on('open-camera', async () => {
   inter.terminal.stdout.on('data', (buffer) => {
     inter.handler({ type: 'data', data: buffer });
   });
-  inter.handler = (output) => {
-    let data = '';
-    if (output.data) data += `: ${output.data.toString()}`;
+  inter.handler = () => {
     inter.send(runScript);
   };
   inter.send(runScript);
 
   app.on('activate', () => {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) createWindow();
   });
 });
@@ -159,11 +163,13 @@ function executeTask(data: string) {
           openNewBrowserTab();
           break;
         case 'direita':
+          openCode();
           break;
         case 'cima':
-          increaseVolume();
+          toggleVolume(true);
           break;
         case 'baixo':
+          toggleVolume(false);
           break;
         default:
           break;

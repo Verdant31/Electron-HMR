@@ -15,7 +15,9 @@ type SelectedOptions = {
 
 const Config = () => {
   const [selectedOptions, setSelectedOptions] = useState<SelectedOptions[]>([]);
-
+  const handleSelectDir = async () => {
+    window.electron.ipcRenderer.sendMessage('select-dir');
+  };
   const handleSaveUserSettings = () => {
     window.electron.ipcRenderer.sendMessage(
       'set-user-settings',
@@ -116,6 +118,11 @@ const Config = () => {
           </select>
         </div>
       </div>
+      <button className="nonStyle" type="button" onClick={handleSelectDir}>
+        <p className="clickMe">
+          Click here to define which folder you want to VSCode open
+        </p>
+      </button>
       <button
         className="submitBtn"
         type="button"

@@ -68,6 +68,7 @@ def compare(lmList, cropped):
 while True:
     success, img = cap.read()
     img = detector.findHands(img, draw=True)
+    img = cv2.flip(img, 1)
     sizes = detector.getNewSizes(img)
     cropped = img[sizes[0]:sizes[1], sizes[3]:sizes[2]]
     k = cv2.waitKey(1)
@@ -104,20 +105,22 @@ while True:
                     leftVariation.append(lm[1])
         if (alfabeto[int(np.argmax(predict))] == "Nop"):
             moveFinished = True
+
     elif (((not cropped.shape[0] > 0 and not cropped.shape[1]) or moveFinished) > 0 and moveStarted):
         moveStarted = False
         topInterval = max(upVariation) - min(upVariation)
         bottomInterval = max(downVariation) - min(downVariation)
         rightInterval = max(rightVariation) - min(rightVariation)
         leftInterval = max(leftVariation) - min(leftVariation)
+        lastElementRight = (rightVariation[-1] + rightVariation[-2] + rightVariation[-3] + rightVariation[-4])/4
 
-        if ((upVariation[0] > upVariation[-1] and downVariation[0] > downVariation[-1]) and topInterval > rightInterval and topInterval > leftInterval):
+        if((upVariation[0] > upVariation[-1] and downVariation[0] > downVariation[-1]) and topInterval > rightInterval and topInterval > leftInterval):
             direction = "cima"
-        elif ((upVariation[0] < upVariation[-1] and downVariation[0] < downVariation[-1]) and bottomInterval > rightInterval and bottomInterval > leftInterval):
+        elif((upVariation[0] < upVariation[-1] and downVariation[0] < downVariation[-1]) and bottomInterval > rightInterval and bottomInterval > leftInterval):
             direction = "baixo"
-        elif (rightInterval > topInterval and rightInterval > bottomInterval and rightInterval > leftInterval):
+        elif((rightVariation[0] > lastElementRight and leftVariation[0] > lastElementRight) and rightInterval > topInterval and rightInterval > bottomInterval):
             direction = "direita"
-        elif (leftInterval > topInterval and leftInterval > bottomInterval and leftInterval > rightInterval):
+        elif(leftInterval > topInterval and leftInterval > bottomInterval):
             direction = "esquerda"
         print(moveSymbol + " " + direction)
         rightMovesCounter = 0

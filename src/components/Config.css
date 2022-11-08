@@ -1,13 +1,20 @@
-
-h1, h2, h3, h4, h5 {
-  color: #37BAF5;
+h1,
+h2,
+h3,
+h4,
+h5 {
+  color: #37baf5;
 }
 
 .option {
   flex-direction: row !important;
 }
 
-.option h3{
+.clickMe {
+  margin-block: 1rem;
+}
+
+.option h3 {
   padding: 0;
   margin-right: 2rem;
   width: 18rem;
@@ -35,13 +42,12 @@ h1, h2, h3, h4, h5 {
   height: 3rem;
   text-decoration: none;
   border: 0;
-  background: #37BAF5;
+  background: #37baf5;
   color: #fff;
   border-radius: 4px;
 }
 
 .submitBtn p {
-  background-color: #37BAF5;
+  background-color: #37baf5;
   font-weight: bold;
 }
-

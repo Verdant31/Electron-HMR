@@ -6,8 +6,8 @@ export const terminal =
   process.platform === 'win32' ? 'powershell.exe' : '/bin/sh';
 export const runScript =
   process.platform === 'win32'
-    ? 'python -u "C:/Users/Administrador/Desktop/ProjectHMR/Electron-HMR/code/main.py"'
-    : '/bin/python3 /home/verdant/Desktop/Github/Electron-HMR/code/main.py';
+    ? 'python -u "C:/Users/Administrador/Desktop/ProjectHMR/Electron-HMR/code/openCamera.py"'
+    : '/bin/python3 /home/verdant/Desktop/Github/Electron-HMR/code/openCamera.py';
 
 export function resolveHtmlPath(htmlFileName: string) {
   if (process.env.NODE_ENV === 'development') {

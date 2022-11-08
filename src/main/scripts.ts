@@ -1,29 +1,38 @@
 import childProcess from 'child_process';
+import Store from 'electron-store';
 import { terminal } from './util';
 
-export function increaseVolume() {
-  let volume = 0.0;
-  childProcess
-    .spawn('powershell.exe', [
+const store = new Store();
+
+export function toggleVolume(isSome: boolean) {
+  if (process.platform === 'win32') {
+    let volume = 0.0;
+    const child = childProcess.spawn('powershell.exe', [
       'C:/Users/Administrador/Desktop/ProjectHMR/Electron-HMR/code/volume.ps1 ; [Audio]::Volume',
-    ])
-    .stdout.addListener('data', (buffer) => {
+    ]);
+
+    child.stdout.addListener('data', (buffer) => {
       if (buffer.toString()) {
-        volume = buffer.toString();
+        volume = buffer
+          .toString()
+          .replace(/(\r\n|\n|\r)/gm, '')
+          .replace(',', '.');
+        const newVolume = isSome
+          ? parseFloat(volume.toString()) + 0.3
+          : parseFloat(volume.toString()) - 0.3;
+        childProcess.spawn('powershell.exe', [
+          `C:/Users/Administrador/Desktop/ProjectHMR/Electron-HMR/code/volume.ps1 ; [Audio]::Volume = ${newVolume}`,
+        ]);
       }
     });
-  childProcess
-    .spawn('powershell.exe', [
-      `C:/Users/Administrador/Desktop/ProjectHMR/Electron-HMR/code/volume.ps1 ; [Audio]::Volume = ${
-        volume + 0.9
-      }`,
-    ])
-    .stdout.addListener('data', (buffer) => {
-      console.log(buffer.toString());
-      if (buffer.toString()) {
-        volume = buffer.toString();
-      }
-    });
+  } else {
+    // TODO Fazer o aumento e diminuição de volume funcional no linux também
+  }
+}
+
+export function openCode() {
+  const path = store.get('vscode-project-path');
+  childProcess.spawn(terminal, [`code ${path}`]);
 }
 
 export function openNewBrowserTab() {
