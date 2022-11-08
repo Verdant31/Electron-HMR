@@ -16,7 +16,7 @@ import log from 'electron-log';
 import childProcess from 'child_process';
 import Store from 'electron-store';
 import MenuBuilder from './menu';
-import { resolveHtmlPath, runScript, terminal } from './util';
+import { openCameraScript, resolveHtmlPath, runScript, terminal } from './util';
 import { openCode, openNewBrowserTab, toggleVolume } from './scripts';
 
 const store = new Store();
@@ -148,9 +148,9 @@ ipcMain.on('open-camera', async () => {
     inter.handler({ type: 'data', data: buffer });
   });
   inter.handler = () => {
-    inter.send(runScript);
+    inter.send(openCameraScript);
   };
-  inter.send(runScript);
+  inter.send(openCameraScript);
 
   app.on('activate', () => {
     if (mainWindow === null) createWindow();

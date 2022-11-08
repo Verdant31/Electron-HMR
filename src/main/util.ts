@@ -2,6 +2,11 @@
 import { URL } from 'url';
 import path from 'path';
 
+export const openCameraScript =
+  process.platform === 'win32'
+    ? 'python -u "C:/Users/Administrador/Desktop/ProjectHMR/Electron-HMR/code/openCamera.py"'
+    : '/bin/python3 /home/verdant/Desktop/Github/Electron-HMR/code/openCamera.py';
+
 export const terminal =
   process.platform === 'win32' ? 'powershell.exe' : '/bin/sh';
 export const runScript =
