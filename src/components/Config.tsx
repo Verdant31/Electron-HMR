@@ -14,6 +14,7 @@ type SelectedOptions = {
 };
 
 const Config = () => {
+  const [wasSettingsSaved, setWasSettingsSaved] = useState(false);
   const [selectedPath, setSelectedPath] = useState('');
   const [selectedOptions, setSelectedOptions] = useState<SelectedOptions[]>([]);
   const handleSelectDir = async () => {
@@ -24,6 +25,7 @@ const Config = () => {
       'set-user-settings',
       selectedOptions
     );
+    setWasSettingsSaved(true);
   };
   window.electron.ipcRenderer.on('get-path', (store) => {
     const splitedPath = (store as string).split('/');
@@ -141,6 +143,11 @@ const Config = () => {
       >
         <p>Save changes</p>
       </button>
+      {wasSettingsSaved && (
+        <p style={{ fontWeight: '400', textDecoration: 'none' }}>
+          Settings saved successfully!
+        </p>
+      )}
     </div>
   );
 };
